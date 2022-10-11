@@ -1,0 +1,43 @@
+name: .NET Build and Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build eith dotnet
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+    - name: Publish
+      shell: cmd
+      run: |
+        dotnet publish -c Release -o website
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: website
+        path: ./website/**
+        if-no-files-found: error
+ 
+    
+
